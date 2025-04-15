@@ -55,14 +55,20 @@ async def scrape():
             });
         }''')
         
-        # Groeperen op maand
-        grouped_events = {}
-        for event in events:
-            if event['date']:
-                month = datetime.strptime(event['date'], "%d-%m-%Y").strftime("%B %Y")
-                if month not in grouped_events:
-                    grouped_events[month] = []
-                grouped_events[month].append(event)
+       # Groeperen op maand
+grouped_events = {}
+for event in events:
+    if event['date']:
+        try:
+            # Parse datum en negeer tijd
+            parsed_date = datetime.strptime(event['date'], "%d-%m-%Y, %H:%M")
+            month = parsed_date.strftime("%B %Y")
+            if month not in grouped_events:
+                grouped_events[month] = []
+            grouped_events[month].append(event)
+        except Exception as e:
+            print(f"[FOUT] Fout bij het parseren van de datum: {event['date']} - {e}")
+
         
         # HTML genereren
         html = """
