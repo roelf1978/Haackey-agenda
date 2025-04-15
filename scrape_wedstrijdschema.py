@@ -65,7 +65,7 @@ async def scrape_wedstrijdschema():
             <style>
                 body {
                     font-family: sans-serif;
-                    background-color: #000; /* Zwarte achtergrond */
+                   
                     color: #fff; /* Witte tekst */
                     text-align: center; /* Tekst centreren */
                     margin: 0;
