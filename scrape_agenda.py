@@ -7,20 +7,16 @@ async def scrape():
     # Browser lanceren
     print("[INFO] Browser starten...")
     browser = await launch(headless=True, args=['--no-sandbox'])
-    async with browser:
-        page = await browser.newPage()
+    page = await browser.newPage()
 
+    try:
         # Pagina openen
         print("[INFO] Pagina openen...")
         await page.goto('https://www.haackey.nl/agenda', waitUntil='networkidle2')
 
         # Wachten op agenda-selector
-        try:
-            print("[INFO] Wachten op agenda-selector...")
-            await page.waitForSelector('.clsLISAAgDate', timeout=30000)  # 30 seconden
-        except Exception as e:
-            print("[FOUT] Agenda-element niet gevonden:", e)
-            return
+        print("[INFO] Wachten op agenda-selector...")
+        await page.waitForSelector('.clsLISAAgDate', timeout=30000)  # 30 seconden
 
         # Data scrapen
         print("[INFO] Agenda laden...")
@@ -51,6 +47,13 @@ async def scrape():
             f.write(html)
 
         print(f"[INFO] Agenda opgeslagen in {output_file}")
+
+    except Exception as e:
+        print(f"[FOUT] Er is een fout opgetreden: {e}")
+
+    finally:
+        # Browser sluiten
+        await browser.close()
 
 # Asynchrone hoofdfunctie uitvoeren
 asyncio.run(scrape())
