@@ -1,7 +1,7 @@
-name: Update Agenda
+name: Update Agenda en Wedstrijdschema
 on:
   schedule:
-    - cron: "0 5 * * *"  # Dagelijks om 05:00 UTC (06:00 NL tijd)
+    - cron: "0 5 * * *" # Dagelijks om 05:00 UTC (06:00 NL tijd)
   workflow_dispatch:
 jobs:
   build:
@@ -17,16 +17,20 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run scraper
+      - name: Run agenda scraper
         run: python scrape_agenda.py
-      - name: Upload screenshot as artifact
-        if: always() # Zorgt ervoor dat de screenshot wordt geüpload, zelfs als de scraper faalt
+      - name: Run wedstrijdschema scraper
+        run: python scrape_wedstrijdschema.py
+      - name: Upload screenshots as artifacts
+        if: always() # Zorgt ervoor dat de screenshots worden geüpload, zelfs als de scrapers falen
         uses: actions/upload-artifact@v4
         with:
-          name: screenshot
-          path: screenshot.png
+          name: screenshots
+          path: |
+            screenshot.png
+            screenshot_wedstrijdschema.png
       - name: Deploy to GitHub Pages
-        if: success() # Alleen uitvoeren als de scraper succesvol is
+        if: success() # Alleen uitvoeren als de scrapers succesvol zijn
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
