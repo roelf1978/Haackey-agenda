@@ -21,7 +21,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          python -m pyppeteer.install
+
 
       - name: Run scraper
         run: python scrape_agenda.py
