@@ -2,6 +2,7 @@ import asyncio
 from pyppeteer import launch
 from datetime import datetime
 import os
+import re
 
 async def scrape():
     # Browser lanceren met extra argumenten
@@ -60,8 +61,11 @@ async def scrape():
         for event in events:
             if event['date']:
                 try:
-                    # Parse datum en negeer tijd
-                    parsed_date = datetime.strptime(event['date'], "%d-%m-%Y, %H:%M")
+                    # Clean de datum (verwijder extra spaties rond de komma)
+                    clean_date = re.sub(r'\s*,\s*', ', ', event['date'])
+                    
+                    # Parse datum
+                    parsed_date = datetime.strptime(clean_date, "%d-%m-%Y, %H:%M")
                     month = parsed_date.strftime("%B %Y")
                     if month not in grouped_events:
                         grouped_events[month] = []
