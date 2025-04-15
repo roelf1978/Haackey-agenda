@@ -5,9 +5,19 @@ from datetime import datetime
 async def scrape():
     browser = await launch(headless=True, args=['--no-sandbox'])
     page = await browser.newPage()
-    await page.goto('https://www.haackey.nl/agenda', waitUntil='networkidle2')
-    await page.waitForSelector('.clsLISAAgDate', timeout=10000)
 
+    print("[INFO] Pagina openen...")
+    await page.goto('https://www.haackey.nl/agenda', waitUntil='networkidle2')
+
+    try:
+        print("[INFO] Wachten op agenda-selector...")
+        await page.waitForSelector('.clsLISAAgDate', timeout=30000)  # 30 seconden
+    except Exception as e:
+        print("[FOUT] Agenda-element niet gevonden:", e)
+        await browser.close()
+        return
+
+    print("[INFO] Agenda laden...")
     events = await page.evaluate('''() => {
         return Array.from(document.querySelectorAll('.clsResultDiv')).map(el => {
             return {
@@ -25,5 +35,8 @@ async def scrape():
 
     with open("public/agenda.html", "w") as f:
         f.write(html)
+
+    print("[INFO] Agenda opgeslagen.")
+    await browser.close()
 
 asyncio.get_event_loop().run_until_complete(scrape())
