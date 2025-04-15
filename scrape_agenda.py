@@ -72,7 +72,7 @@ async def scrape():
             <style>
                 body {
                     font-family: sans-serif;
-                    background-color: #000;
+                    
                     color: #fff;
                     text-align: center;
                 }
