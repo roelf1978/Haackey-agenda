@@ -55,12 +55,53 @@ async def scrape():
             });
         }''')
         
-        # HTML genereren
-        html = "<html><head><meta charset='UTF-8'><style>body{font-family:sans-serif;}</style></head><body>"
-        html += f"<h2>Agenda - HHC Haackey ({datetime.now().strftime('%d-%m-%Y')})</h2><ul>"
+        # Groeperen op maand
+        grouped_events = {}
         for event in events:
-            html += f"<li><strong>{event['date']}</strong>: {event['title']}</li>"
-        html += "</ul></body></html>"
+            if event['date']:
+                month = datetime.strptime(event['date'], "%d-%m-%Y").strftime("%B %Y")
+                if month not in grouped_events:
+                    grouped_events[month] = []
+                grouped_events[month].append(event)
+        
+        # HTML genereren
+        html = """
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <style>
+                body {
+                    font-family: sans-serif;
+                    background-color: #000;
+                    color: #fff;
+                    text-align: center;
+                }
+                h2 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
+                h3 {
+                    font-size: 20px;
+                    margin-top: 30px;
+                }
+                ul {
+                    list-style-type: none;
+                    padding: 0;
+                }
+                li {
+                    margin: 10px 0;
+                }
+            </style>
+        </head>
+        <body>
+        """
+        html += f"<h2>Agenda - HHC Haackey ({datetime.now().strftime('%d-%m-%Y')})</h2>"
+        for month, events in grouped_events.items():
+            html += f"<h3>{month}</h3><ul>"
+            for event in events:
+                html += f"<li><strong>{event['date']}</strong>: {event['title']}</li>"
+            html += "</ul>"
+        html += "</body></html>"
         
         # Controleer of de map 'public' bestaat
         output_dir = "public"
