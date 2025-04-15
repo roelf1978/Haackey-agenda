@@ -7,7 +7,7 @@ async def scrape_wedstrijdschema():
     # Browser lanceren met extra argumenten
     print("[INFO] Browser starten...")
     browser = await launch(
-        headless=True, # Je kunt dit naar False veranderen voor debugging
+        headless=True,  # Je kunt dit naar False veranderen voor debugging
         args=[
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -30,8 +30,8 @@ async def scrape_wedstrijdschema():
         
         # Probeer cookies te accepteren indien nodig (pas de selector aan)
         try:
-            await page.waitForSelector('.cookie-button', timeout=10000) # Verhoogde timeout
-            await page.click('.cookie-button') # Vervang met juiste selector
+            await page.waitForSelector('.cookie-button', timeout=10000)  # Verhoogde timeout
+            await page.click('.cookie-button')  # Vervang met juiste selector
             print("[INFO] Cookie banner weggeklikt")
         except Exception as e:
             print("[INFO] Geen cookie banner gevonden of andere fout:", e)
@@ -42,7 +42,7 @@ async def scrape_wedstrijdschema():
         
         # Wachten op wedstrijdschema-selector
         print("[INFO] Wachten op wedstrijdschema-selector...")
-        await page.waitForSelector('.home-team', timeout=60000) # Verhoogde timeout
+        await page.waitForSelector('.home-team', timeout=60000)  # Verhoogde timeout
         
         # Data scrapen
         print("[INFO] Wedstrijdschema laden...")
@@ -58,7 +58,34 @@ async def scrape_wedstrijdschema():
         }''')
         
         # HTML genereren
-        html = "<html><head><meta charset='UTF-8'><style>body{font-family:sans-serif;}</style></head><body>"
+        html = """
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <style>
+                body {
+                    font-family: sans-serif;
+                    background-color: #000; /* Zwarte achtergrond */
+                    color: #fff; /* Witte tekst */
+                    text-align: center; /* Tekst centreren */
+                    margin: 0;
+                    padding: 20px;
+                }
+                h2 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
+                ul {
+                    list-style-type: none;
+                    padding: 0;
+                }
+                li {
+                    margin: 10px 0; /* Ruimte tussen items */
+                }
+            </style>
+        </head>
+        <body>
+        """
         html += f"<h2>Wedstrijdschema - HHC Haackey ({datetime.now().strftime('%d-%m-%Y')})</h2><ul>"
         for match in matches:
             html += f"<li><strong>{match['home_team']} vs {match['away_team']}</strong> - Tijd: {match['time']}, Veld: {match['field']}</li>"
