@@ -14,6 +14,10 @@ async def scrape():
         print("[INFO] Pagina openen...")
         await page.goto('https://www.haackey.nl/agenda', waitUntil='networkidle2')
 
+        # Screenshot maken om te zien wat de scraper ziet
+        print("[DEBUG] Screenshot maken voor debug...")
+        await page.screenshot({'path': 'screenshot.png'})
+
         # Wachten op agenda-selector
         print("[INFO] Wachten op agenda-selector...")
         await page.waitForSelector('.clsLISAAgDate', timeout=30000)  # 30 seconden
