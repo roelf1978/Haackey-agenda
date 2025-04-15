@@ -26,11 +26,11 @@ async def scrape_wedstrijdschema():
         await page.goto('https://www.haackey.nl/wedstrijdschema', waitUntil='networkidle2')
         
         # Even wachten voor de pagina volledig is geladen
-        await asyncio.sleep(3)
+        await asyncio.sleep(5)
         
         # Probeer cookies te accepteren indien nodig (pas de selector aan)
         try:
-            await page.waitForSelector('.cookie-button', timeout=5000) # Vervang met juiste selector
+            await page.waitForSelector('.cookie-button', timeout=10000) # Verhoogde timeout
             await page.click('.cookie-button') # Vervang met juiste selector
             print("[INFO] Cookie banner weggeklikt")
         except Exception as e:
@@ -42,15 +42,17 @@ async def scrape_wedstrijdschema():
         
         # Wachten op wedstrijdschema-selector
         print("[INFO] Wachten op wedstrijdschema-selector...")
-        await page.waitForSelector('.clsLISAAgDate', timeout=30000) # 30 seconden
+        await page.waitForSelector('.home-team', timeout=60000) # Verhoogde timeout
         
         # Data scrapen
         print("[INFO] Wedstrijdschema laden...")
         matches = await page.evaluate('''() => {
-            return Array.from(document.querySelectorAll('.clsResultDiv')).map(el => {
+            return Array.from(document.querySelectorAll('.single-item')).map(el => {
                 return {
-                    date: el.querySelector('.clsLISAAgDate')?.innerText.trim(),
-                    title: el.querySelector('.clsLISAAgTitle')?.innerText.trim()
+                    home_team: el.querySelector('.home-team')?.innerText.trim(),
+                    away_team: el.querySelector('.away-team')?.innerText.trim(),
+                    time: el.querySelector('.main-time')?.innerText.trim(),
+                    field: el.querySelector('.play-field')?.innerText.trim()
                 };
             });
         }''')
@@ -59,7 +61,7 @@ async def scrape_wedstrijdschema():
         html = "<html><head><meta charset='UTF-8'><style>body{font-family:sans-serif;}</style></head><body>"
         html += f"<h2>Wedstrijdschema - HHC Haackey ({datetime.now().strftime('%d-%m-%Y')})</h2><ul>"
         for match in matches:
-            html += f"<li><strong>{match['date']}</strong>: {match['title']}</li>"
+            html += f"<li><strong>{match['home_team']} vs {match['away_team']}</strong> - Tijd: {match['time']}, Veld: {match['field']}</li>"
         html += "</ul></body></html>"
         
         # Controleer of de map 'public' bestaat
