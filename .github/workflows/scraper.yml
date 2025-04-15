@@ -25,7 +25,15 @@ jobs:
       - name: Run scraper
         run: python scrape_agenda.py
 
+      - name: Upload screenshot as artifact
+        if: always() # Zorgt ervoor dat de screenshot wordt geüpload, zelfs als de scraper faalt
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshot
+          path: screenshot.png
+
       - name: Deploy to GitHub Pages
+        if: success() # Alleen uitvoeren als de scraper succesvol is
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
