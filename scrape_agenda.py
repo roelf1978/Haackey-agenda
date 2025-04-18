@@ -83,14 +83,14 @@ async def scrape():
                     font-family: sans-serif;
                     color: #fff;
                     text-align: center;
-                    font-size : 100px
+                    font-size : 64px;
                 }
                 h2 {
-                    font-size: 120px;
+                    font-size: 72px;
                     margin-bottom: 20px;
                 }
                 h3 {
-                    font-size: 110px;
+                    font-size: 78px;
                     margin-top: 30px;
                 }
                 ul {
