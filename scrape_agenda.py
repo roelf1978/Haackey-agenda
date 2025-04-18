@@ -90,7 +90,7 @@ async def scrape():
                     margin-bottom: 20px;
                 }
                 h3 {
-                    font-size: 78px;
+                    font-size: 72px;
                     margin-top: 30px;
                 }
                 ul {
@@ -104,7 +104,7 @@ async def scrape():
         </head>
         <body>
         """
-        html += f"<h2>Agenda - ({datetime.now().strftime('%d-%m-%Y')})</h2>"
+        html += f"<h2>Agenda </h2>"
         for month, events in grouped_events.items():
             html += f"<h3>{month}</h3><ul>"
             for event in events:
