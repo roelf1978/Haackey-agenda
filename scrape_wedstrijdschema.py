@@ -57,39 +57,46 @@ async def scrape_wedstrijdschema():
             });
         }''')
         
-        # HTML genereren
-        html = """
+ # HTML genereren
+        html = f"""
         <html>
         <head>
             <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
             <style>
-                body {
+                body {{
                     font-family: sans-serif;
-                   
-                    color: #fff; /* Witte tekst */
-                    text-align: center; /* Tekst centreren */
+                    color: #fff;
+                    background-color: #003366;
+                    text-align: center;
                     margin: 0;
                     padding: 20px;
-                }
-                h2 {
-                    font-size: 24px;
+                }}
+                .slide {{
+                    padding: 1vw;
+                }}
+                h2 {{
+                    font-size: clamp(24px, 5vw, 60px);
                     margin-bottom: 20px;
-                }
-                ul {
+                }}
+                li {{
+                    font-size: clamp(16px, 2.5vw, 32px);
+                    margin: 10px 0;
+                }}
+                ul {{
                     list-style-type: none;
                     padding: 0;
-                }
-                li {
-                    margin: 10px 0; /* Ruimte tussen items */
-                }
+                }}
             </style>
         </head>
         <body>
+        <div class="slide">
+        <h2>Wedstrijdschema - HHC Haackey ({datetime.now().strftime('%d-%m-%Y')})</h2>
+        <ul>
         """
-        html += f"<h2>Wedstrijdschema - HHC Haackey ({datetime.now().strftime('%d-%m-%Y')})</h2><ul>"
         for match in matches:
             html += f"<li><strong>{match['home_team']} vs {match['away_team']}</strong> - Tijd: {match['time']}, Veld: {match['field']}</li>"
-        html += "</ul></body></html>"
+        html += "</ul></div></body></html>"
         
         # Controleer of de map 'public' bestaat
         output_dir = "public"
