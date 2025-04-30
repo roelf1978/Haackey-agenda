@@ -95,7 +95,7 @@ async def scrape_wedstrijdschema():
         <ul>
         """
         for match in matches:
-            html += f"<li><strong>{match['home_team']} vs {match['away_team']}</strong> - Tijd: {match['time']}, Veld: {match['field']}</li>"
+            html += f"<li><strong><h2>{match['home_team']} vs {match['away_team']}</strong> - Tijd: {match['time']}, Veld: {match['field']}</h2></li>"
         html += "</ul></div></body></html>"
         
         # Controleer of de map 'public' bestaat
