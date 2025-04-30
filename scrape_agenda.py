@@ -74,27 +74,36 @@ async def scrape():
                     print(f"[FOUT] Fout bij het parseren van de datum: {event['date']} - {e}")
         
         # HTML genereren
-        html = """
-        <html>
-        <head>
-            <meta charset='UTF-8'>
-            <style>
-                body {
-                    font-family: sans-serif;
-                    color: #fff;
-                    text-align: center;
-                    }
-                ul {
-                    list-style-type: none;
-                    padding: 0;
-                }
-                li {
-                    margin: 10px 0;
-                }
-            </style>
-        </head>
-        <body>
-        """
+     html = """
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {
+            font-family: sans-serif;
+            color: #fff;
+            text-align: center;
+            background-color: #003366;
+        }
+        h2 {
+            font-size: clamp(24px, 5vw, 60px);
+        }
+        h3 {
+            font-size: clamp(20px, 4vw, 48px);
+        }
+        li {
+            font-size: clamp(16px, 2.5vw, 32px);
+            margin: 10px 0;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+"""
         html += f"<h2>Agenda </h2>"
         for month, events in grouped_events.items():
             html += f"<h3>{month}</h3><ul>"
