@@ -99,7 +99,7 @@ async def scrape():
         for month, events in grouped_events.items():
             html += f"<h3>{month}</h3><ul>"
             for event in events:
-                html += f"<li><strong>{event['date']}</strong>: {event['title']}</li>"
+                html += f"<li><strong><style="font-size:4vw">{event['date']}</strong>: {event['title']}</li></style>"
             html += "</ul>"
         html += "</body></html>"
         
