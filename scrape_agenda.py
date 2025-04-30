@@ -104,7 +104,7 @@ async def scrape():
         </head>
         <body>
         <div class="slide">
-        <h2>Agenda</h2>
+        <h3>Agenda</h3>
         """
 
         for month, events_in_month in grouped_events.items():
