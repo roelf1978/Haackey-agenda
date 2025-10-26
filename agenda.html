@@ -9,24 +9,51 @@
                     color: #fff;
                     text-align: center;
                     background-color: #003366;
+                    margin: 0;
+                    padding: 0;
+                }
+                .slide {
+                    width: 90%; /* Iets smaller voor ademruimte */
+                    margin: 0 auto; /* Centreren */
                 }
                 h2 {
                     font-size: clamp(24px, 5vw, 60px);
                 }
                 h3 {
-                    font-size: clamp(20px, 4vw, 48px);
-                }
-                li {
-                    font-size: clamp(16px, 2.5vw, 32px);
-                    margin: 10px 0;
+                    /* Stijl voor de Maand (bv. "Oktober 2025") */
+                    font-size: clamp(22px, 4vw, 52px);
+                    color: #f0e68c; /* Lichtgeel */
+                    border-bottom: 2px solid #f0e68c;
+                    padding-bottom: 10px;
+                    margin-top: 30px;
                 }
                 ul {
                     list-style-type: none;
                     padding: 0;
+                    margin: 0 auto; /* Centreer de lijst */
+                }
+                li {
+                    font-size: clamp(18px, 2.5vw, 36px);
+                    margin: 15px 0;
+                    padding: 15px;
+                    display: flex; /* Maak flexbox voor uitlijning */
+                    align-items: center;
+                    text-align: left; /* Lijn tekst links uit */
+                    background: rgba(255, 255, 255, 0.05); /* Lichte achtergrond per item */
+                    border-radius: 8px;
+                }
+                li strong {
+                    /* Stijl voor de datum/tijd (bv. "Zo 26, 14:00") */
+                    font-size: clamp(20px, 2.8vw, 40px);
+                    color: #f0e68c; /* Lichtgeel - goed leesbaar */
+                    min-width: 190px; /* Zorgt dat alle datums gelijk uitlijnen */
+                    margin-right: 25px;
+                    flex-shrink: 0; /* Voorkom dat de datum krimpt */
+                    font-weight: 700;
                 }
             </style>
         </head>
         <body>
         <div class="slide">
-        <h3>Agenda</h3>
-        <h3>October 2025</h3><ul><li><strong><h2>30-10-2025 , 19:30</strong>: Opfris spelregelavond : heel veld</h2></li></ul><h3>November 2025</h3><ul><li><strong><h2>06-11-2025 , 19:30</strong>: Spelregelavond Basis: 4/3 veld, 1/2 veld en 1/4 veld</h2></li><li><strong><h2>09-11-2025 , 10:45</strong>: SUPERSUNDAY</h2></li></ul></div></body></html>
+        <h2>Agenda</h2>
+        <h3>October 2025</h3><ul><li><strong>Thu 30, 19:30</strong> Opfris spelregelavond : heel veld</li></ul><h3>November 2025</h3><ul><li><strong>Thu 06, 19:30</strong> Spelregelavond Basis: 4/3 veld, 1/2 veld en 1/4 veld</li><li><strong>Sun 09, 10:45</strong> SUPERSUNDAY</li></ul></div></body></html>
