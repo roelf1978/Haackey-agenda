@@ -3,12 +3,22 @@ from pyppeteer import launch
 from datetime import datetime
 import os
 import re
+import locale # <-- NIEUW
 
 async def scrape():
+    # Probeer Nederlandse locale in te stellen voor maandnamen
+    try:
+        locale.setlocale(locale.LC_TIME, 'nl_NL.UTF-8')
+    except locale.Error:
+        try:
+            locale.setlocale(locale.LC_TIME, 'Dutch_Netherlands.1252')
+        except locale.Error:
+            print("[WAARSCHUWING] Kon Nederlandse locale niet instellen. Maandnamen zijn mogelijk in het Engels.")
+
     # Browser lanceren met extra argumenten
     print("[INFO] Browser starten...")
     browser = await launch(
-        headless=True,  # Je kunt dit naar False veranderen voor debugging
+        headless=True,
         args=[
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -66,7 +76,11 @@ async def scrape():
                     
                     # Parse datum
                     parsed_date = datetime.strptime(clean_date, "%d-%m-%Y, %H:%M")
-                    month = parsed_date.strftime("%B %Y")
+                    month = parsed_date.strftime("%B %Y").capitalize() # Maakt 'oktober' -> 'Oktober'
+                    
+                    # Sla een duidelijk leesbare datum en tijd op voor de weergave (bv. "Zo 26, 14:00")
+                    event['display_date'] = parsed_date.strftime("%a %d, %H:%M")
+
                     if month not in grouped_events:
                         grouped_events[month] = []
                     grouped_events[month].append(event)
@@ -85,32 +99,60 @@ async def scrape():
                     color: #fff;
                     text-align: center;
                     background-color: #003366;
+                    margin: 0;
+                    padding: 0;
+                }
+                .slide {
+                    width: 90%; /* Iets smaller voor ademruimte */
+                    margin: 0 auto; /* Centreren */
                 }
                 h2 {
                     font-size: clamp(24px, 5vw, 60px);
                 }
                 h3 {
-                    font-size: clamp(20px, 4vw, 48px);
-                }
-                li {
-                    font-size: clamp(16px, 2.5vw, 32px);
-                    margin: 10px 0;
+                    /* Stijl voor de Maand (bv. "Oktober 2025") */
+                    font-size: clamp(22px, 4vw, 52px);
+                    color: #f0e68c; /* Lichtgeel */
+                    border-bottom: 2px solid #f0e68c;
+                    padding-bottom: 10px;
+                    margin-top: 30px;
                 }
                 ul {
                     list-style-type: none;
                     padding: 0;
+                    margin: 0 auto; /* Centreer de lijst */
+                }
+                li {
+                    font-size: clamp(18px, 2.5vw, 36px);
+                    margin: 15px 0;
+                    padding: 15px;
+                    display: flex; /* Maak flexbox voor uitlijning */
+                    align-items: center;
+                    text-align: left; /* Lijn tekst links uit */
+                    background: rgba(255, 255, 255, 0.05); /* Lichte achtergrond per item */
+                    border-radius: 8px;
+                }
+                li strong {
+                    /* Stijl voor de datum/tijd (bv. "Zo 26, 14:00") */
+                    font-size: clamp(20px, 2.8vw, 40px);
+                    color: #f0e68c; /* Lichtgeel - goed leesbaar */
+                    min-width: 190px; /* Zorgt dat alle datums gelijk uitlijnen */
+                    margin-right: 25px;
+                    flex-shrink: 0; /* Voorkom dat de datum krimpt */
+                    font-weight: 700;
                 }
             </style>
         </head>
         <body>
         <div class="slide">
-        <h3>Agenda</h3>
+        <h2>Agenda</h2>
         """
 
         for month, events_in_month in grouped_events.items():
             html += f"<h3>{month}</h3><ul>"
             for event in events_in_month:
-                html += f"<li><strong><h2>{event['date']}</strong>: {event['title']}</h2></li>"
+                # Dit is de gecorrigeerde, duidelijkere HTML-regel
+                html += f"<li><strong>{event['display_date']}</strong> {event['title']}</li>"
             html += "</ul>"
 
         html += "</div></body></html>"
@@ -122,7 +164,7 @@ async def scrape():
         
         # HTML opslaan
         output_file = os.path.join(output_dir, "agenda.html")
-        with open(output_file, "w") as f:
+        with open(output_file, "w", encoding='utf-8') as f: # Encoding toegevoegd
             f.write(html)
         print(f"[INFO] Agenda opgeslagen in {output_file}")
     except Exception as e:
