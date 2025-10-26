@@ -1,6 +1,6 @@
 import asyncio
 from pyppeteer import launch
-from datetime import datetime
+from datetime import datetime, timedelta # <-- Timedelta is nieuw
 import os
 import locale
 import re
@@ -61,47 +61,49 @@ async def scrape_wedstrijdschema():
             return options;
         }''')
 
-        # Stap 2: Filter deze datums om alleen vandaag en de toekomst te krijgen
+        # --- NIEUWE LOGICA: BEREKEN DEZE WEEK (MA-ZO) ---
         today_dt = datetime.now().date()
-        future_options = []
+        start_of_week = today_dt - timedelta(days=today_dt.weekday()) # Weekday() geeft 0 voor Maandag, 6 voor Zondag
+        end_of_week = start_of_week + timedelta(days=6)
+        print(f"[INFO] Zoeken naar wedstrijden in de huidige week (Maandag {start_of_week} t/m Zondag {end_of_week})...")
+        
+        # Stap 2: Filter datums die binnen DEZE week vallen
+        this_week_options = []
         for option in date_options:
             try:
                 option_date = datetime.strptime(option['value'], "%Y-%m-%dT%H:%M:%SZ").date()
-                if option_date >= today_dt:
+                
+                # Check of de datum in de dropdown binnen de berekende week valt
+                if start_of_week <= option_date <= end_of_week:
                     option['parsed_date'] = option_date # Sla de geparste datum op
-                    future_options.append(option)
+                    this_week_options.append(option)
             except Exception as e:
                 print(f"[WAARSCHUWING] Kon datum niet parsen: {option['value']} - {e}")
 
-        print(f"[INFO] {len(future_options)} toekomstige speeldagen gevonden. Bezig met scrapen...")
+        print(f"[INFO] {len(this_week_options)} speeldagen gevonden in de dropdown voor deze week.")
 
-        all_planned_matches = []
+        all_matches_this_week = []
         
-        # Stap 3: Loop door elke toekomstige datum en scrape de wedstrijden
-        for option in future_options:
+        # Stap 3: Loop door elke datum IN DEZE WEEK en scrape de wedstrijden
+        for option in this_week_options:
             print(f"[INFO] Bezig met scrapen van: {option['text']}...")
             
-            # Selecteer de datum in de dropdown
             await page.select('.date-selector', option['value'])
             
-            # Wacht tot de loader verschijnt (betekent dat de JS de wijziging heeft opgepakt)
             try:
                 await page.waitForSelector('.upcoming-matches-loader', {'visible': True, 'timeout': 5000})
             except Exception:
                 print("[WAARSCHUWING] Loader verscheen niet, ga toch door...")
             
-            # Wacht tot de loader verdwijnt (betekent dat de nieuwe wedstrijden zijn geladen)
             try:
                 await page.waitForSelector('.upcoming-matches-loader', {'hidden': True, 'timeout': 10000})
             except Exception:
                 print(f"[FOUT] Loader bleef zichtbaar. Scrapen mislukt voor {option['text']}.")
                 continue
                 
-            # Scrape de wedstrijden die *nu* zichtbaar zijn
             matches_on_this_day = await page.evaluate('''() => {
                 const matches = [];
                 document.querySelectorAll('.matches-container .single-item').forEach(el => {
-                    // Sla de template over (die is verborgen)
                     if (el.style.display === 'none') return; 
                     
                     matches.push({
@@ -114,32 +116,24 @@ async def scrape_wedstrijdschema():
                 return matches;
             }''')
             
-            # Voeg de datum-info toe aan elke wedstrijd en sla op
             day_header = option['parsed_date'].strftime("%A %d %B %Y").capitalize()
             
             for match in matches_on_this_day:
                 match['day_header'] = day_header
-                
-                # Filter wedstrijden die vandaag al geweest zijn (op tijd)
-                try:
-                    match_time = datetime.strptime(match['time'], "%H:%M").time()
-                    if option['parsed_date'] == today_dt and match_time < datetime.now().time():
-                        continue # Deze is vandaag, maar al geweest
-                    all_planned_matches.append(match)
-                except Exception:
-                     all_planned_matches.append(match) # Tijd onbekend? Altijd toevoegen.
+                # --- BELANGRIJK: We filteren GEEN wedstrijden op tijd meer ---
+                all_matches_this_week.append(match)
 
 
         # Stap 4: Groepeer alle gevonden wedstrijden
         grouped_matches = {}
-        for match in all_planned_matches:
+        for match in all_matches_this_week:
             date_header = match['day_header']
             if date_header not in grouped_matches:
                 grouped_matches[date_header] = []
             grouped_matches[date_header].append(match)
 
 
-        # --- NIEUWE HTML GENERATIE (zelfde als agenda) ---
+        # --- HTML GENERATIE (zelfde als agenda) ---
         html = """
         <html>
         <head>
@@ -205,11 +199,10 @@ async def scrape_wedstrijdschema():
         </head>
         <body>
         <div class="slide">
-        <h2>Wedstrijdschema (Gepland)</h2>
-        """
+        <h2>Wedstrijdschema (Deze Week)</h2> """
 
         if not grouped_matches:
-            html += "<h3>Geen geplande wedstrijden gevonden.</h3>"
+            html += f"<h3>Geen wedstrijden gevonden voor deze week ({start_of_week.strftime('%d-%m')} t/m {end_of_week.strftime('%d-%m')}).</h3>"
 
         for date_header, matches_in_day in grouped_matches.items():
             html += f"<h3>{date_header}</h3><ul>"
