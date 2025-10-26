@@ -7,30 +7,61 @@
                 body {
                     font-family: sans-serif;
                     color: #fff;
-                    background-color: #003366;
                     text-align: center;
+                    background-color: #003366;
                     margin: 0;
-                    padding: 20px;
+                    padding: 0;
                 }
                 .slide {
-                    padding: 1vw;
+                    width: 90%;
+                    margin: 0 auto;
                 }
                 h2 {
                     font-size: clamp(24px, 5vw, 60px);
-                    margin-bottom: 20px;
                 }
-                li {
-                    font-size: clamp(16px, 2.5vw, 32px);
-                    margin: 10px 0;
+                h3 {
+                    /* Stijl voor de Dag (bv. "Zaterdag 26 Oktober") */
+                    font-size: clamp(22px, 4vw, 52px);
+                    color: #f0e68c; /* Lichtgeel */
+                    border-bottom: 2px solid #f0e68c;
+                    padding-bottom: 10px;
+                    margin-top: 30px;
                 }
                 ul {
                     list-style-type: none;
                     padding: 0;
+                    margin: 0 auto;
+                }
+                li {
+                    font-size: clamp(18px, 2.5vw, 36px);
+                    margin: 15px 0;
+                    padding: 15px;
+                    display: flex;
+                    align-items: center;
+                    text-align: left;
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 8px;
+                }
+                li strong {
+                    /* Stijl voor de tijd (bv. "14:00") */
+                    font-size: clamp(20px, 2.8vw, 40px);
+                    color: #f0e68c;
+                    min-width: 130px; /* Kleinere breedte dan agenda */
+                    margin-right: 25px;
+                    flex-shrink: 0;
+                    font-weight: 700;
+                }
+                li span {
+                    /* Stijl voor het veld (bv. "(Veld: 3)") */
+                    margin-left: auto; /* Duwt het veld naar rechts */
+                    padding-left: 20px;
+                    font-size: clamp(16px, 2.2vw, 32px);
+                    color: #ccc;
+                    font-style: italic;
                 }
             </style>
         </head>
         <body>
         <div class="slide">
-        <h2>Wedstrijdschema - HHC Haackey (26-10-2025)</h2>
-        <ul>
-        <li><strong><h2>Team A vs Team B</strong> - Tijd: , Veld: </h2></li></ul></div></body></html>
+        <h2>Wedstrijdschema (Gepland)</h2>
+        <h3>Geen geplande wedstrijden gevonden.</h3></div></body></html>
