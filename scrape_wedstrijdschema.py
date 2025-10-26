@@ -1,6 +1,6 @@
 import asyncio
 from pyppeteer import launch
-from datetime import datetime, timedelta # <-- Timedelta is nieuw
+from datetime import datetime, timedelta # Timedelta is nodig
 import os
 import locale
 import re
@@ -61,31 +61,31 @@ async def scrape_wedstrijdschema():
             return options;
         }''')
 
-        # --- NIEUWE LOGICA: BEREKEN DEZE WEEK (MA-ZO) ---
+        # --- AANGEPASTE LOGICA: VANDAAG + 6 DAGEN ---
         today_dt = datetime.now().date()
-        start_of_week = today_dt - timedelta(days=today_dt.weekday()) # Weekday() geeft 0 voor Maandag, 6 voor Zondag
-        end_of_week = start_of_week + timedelta(days=6)
-        print(f"[INFO] Zoeken naar wedstrijden in de huidige week (Maandag {start_of_week} t/m Zondag {end_of_week})...")
+        start_date = today_dt
+        end_date = start_date + timedelta(days=6) # 6 dagen in de toekomst
+        print(f"[INFO] Zoeken naar wedstrijden voor de komende 7 dagen ({start_date.strftime('%d-%m')} t/m {end_date.strftime('%d-%m')})...")
         
-        # Stap 2: Filter datums die binnen DEZE week vallen
-        this_week_options = []
+        # Stap 2: Filter datums die binnen DEZE periode vallen
+        date_range_options = []
         for option in date_options:
             try:
                 option_date = datetime.strptime(option['value'], "%Y-%m-%dT%H:%M:%SZ").date()
                 
-                # Check of de datum in de dropdown binnen de berekende week valt
-                if start_of_week <= option_date <= end_of_week:
+                # Check of de datum in de dropdown binnen de berekende periode valt
+                if start_date <= option_date <= end_date:
                     option['parsed_date'] = option_date # Sla de geparste datum op
-                    this_week_options.append(option)
+                    date_range_options.append(option)
             except Exception as e:
                 print(f"[WAARSCHUWING] Kon datum niet parsen: {option['value']} - {e}")
 
-        print(f"[INFO] {len(this_week_options)} speeldagen gevonden in de dropdown voor deze week.")
+        print(f"[INFO] {len(date_range_options)} speeldagen gevonden in de dropdown voor deze periode.")
 
-        all_matches_this_week = []
+        all_matches_in_range = []
         
-        # Stap 3: Loop door elke datum IN DEZE WEEK en scrape de wedstrijden
-        for option in this_week_options:
+        # Stap 3: Loop door elke datum IN DEZE PERIODE en scrape de wedstrijden
+        for option in date_range_options:
             print(f"[INFO] Bezig met scrapen van: {option['text']}...")
             
             await page.select('.date-selector', option['value'])
@@ -120,13 +120,21 @@ async def scrape_wedstrijdschema():
             
             for match in matches_on_this_day:
                 match['day_header'] = day_header
-                # --- BELANGRIJK: We filteren GEEN wedstrijden op tijd meer ---
-                all_matches_this_week.append(match)
+                
+                # We filteren alleen wedstrijden die VANDAAG al geweest zijn
+                # Wedstrijden in de toekomst worden altijd getoond
+                try:
+                    match_time = datetime.strptime(match['time'], "%H:%M").time()
+                    if option['parsed_date'] == today_dt and match_time < datetime.now().time():
+                        continue # Deze is vandaag, maar al geweest
+                    all_matches_in_range.append(match)
+                except Exception:
+                     all_matches_in_range.append(match) # Tijd onbekend? Altijd toevoegen.
 
 
         # Stap 4: Groepeer alle gevonden wedstrijden
         grouped_matches = {}
-        for match in all_matches_this_week:
+        for match in all_matches_in_range:
             date_header = match['day_header']
             if date_header not in grouped_matches:
                 grouped_matches[date_header] = []
@@ -199,10 +207,10 @@ async def scrape_wedstrijdschema():
         </head>
         <body>
         <div class="slide">
-        <h2>Wedstrijdschema (Deze Week)</h2> """
+        <h2>Wedstrijdschema (Komende 7 dagen)</h2> """
 
         if not grouped_matches:
-            html += f"<h3>Geen wedstrijden gevonden voor deze week ({start_of_week.strftime('%d-%m')} t/m {end_of_week.strftime('%d-%m')}).</h3>"
+            html += f"<h3>Geen geplande wedstrijden gevonden ({start_date.strftime('%d-%m')} t/m {end_date.strftime('%d-%m')}).</h3>"
 
         for date_header, matches_in_day in grouped_matches.items():
             html += f"<h3>{date_header}</h3><ul>"
