@@ -187,4 +187,53 @@ async def scrape_wedstrijdschema():
                 li strong {
                     /* Stijl voor de tijd (bv. "14:00") */
                     font-size: clamp(20px, 2.8vw, 40px);
-                    color: #f0e6
+                    color: #f0e68c;
+                    min-width: 130px; /* Kleinere breedte dan agenda */
+                    margin-right: 25px;
+                    flex-shrink: 0;
+                    font-weight: 700;
+                }
+                li span {
+                    /* Stijl voor het veld (bv. "(Veld: 3)") */
+                    margin-left: auto; /* Duwt het veld naar rechts */
+                    padding-left: 20px;
+                    font-size: clamp(16px, 2.2vw, 32px);
+                    color: #ccc;
+                    font-style: italic;
+                }
+            </style>
+        </head>
+        <body>
+        <div class="slide">
+        <h2>Wedstrijdschema (Gepland)</h2>
+        """
+
+        if not grouped_matches:
+            html += "<h3>Geen geplande wedstrijden gevonden.</h3>"
+
+        for date_header, matches_in_day in grouped_matches.items():
+            html += f"<h3>{date_header}</h3><ul>"
+            for match in matches_in_day:
+                field_text = f"(Veld: {match['field']})" if match['field'] else ""
+                html += f"<li><strong>{match['time']}</strong> {match['home_team']} vs {match['away_team']} <span>{field_text}</span></li>"
+            html += "</ul>"
+
+        html += "</div></body></html>"
+        
+        output_dir = "public"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        output_file = os.path.join(output_dir, "wedstrijdschema.html")
+        with open(output_file, "w", encoding='utf-8') as f:
+            f.write(html)
+        print(f"[INFO] Wedstrijdschema opgeslagen in {output_file}")
+        
+    except Exception as e:
+        print(f"[FOUT] Er is een algemene fout opgetreden: {e}")
+    finally:
+        await browser.close()
+        print("[INFO] Browser gesloten.")
+
+# Asynchrone hoofdfunctie uitvoeren
+asyncio.run(scrape_wedstrijdschema())
